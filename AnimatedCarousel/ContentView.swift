@@ -37,7 +37,6 @@ struct ContentView: View {
                                                 
                         }
                     }
-                .padding()
                 .frame(height: 170)
             }
         }
@@ -46,38 +45,49 @@ struct ContentView: View {
     @MainActor func transition(index: Int, proxy: ScrollViewProxy) async {
         if index != 0{
             slotIndex = index
+            
             withAnimation(.easeInOut) {
                 actionInProcess = true
                 offsetOfChosenElement = CGSize(width: 0, height: -10)
             }
+            
             try? await Task.sleep(nanoseconds: 100_000_000)
+            
             withAnimation(.easeInOut) {
                 offsetOfChosenElement = CGSize(width: -138 * index, height: -10)
                 proxy.scrollTo(0)
             }
-            try? await Task.sleep(nanoseconds: 100_000_000)
+            
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            
             withAnimation(.easeInOut) {
                 offsetOfPreviousElements = CGSize(width: 138, height: 0)
             }
+            
             try? await Task.sleep(nanoseconds: 100_000_000)
+            
             withAnimation(.easeInOut) {
                 offsetOfChosenElement = CGSize(width: -138 * index, height: 0)
                 actionInProcess = false
             }
+            
             try? await Task.sleep(nanoseconds: 250_000_000)
             slotIndex = 0
+            
             offsetOfPreviousElements = CGSize(width: 0, height: 0)
             offsetOfChosenElement = CGSize(width: 0, height: 0)
+            
             mockObjects.insert(mockObjects.remove(at: index), at: 0)
         }
     }
     
     func getOffset(index: Int) -> CGSize {
-        if slotIndex == index {
+        switch index {
+        case slotIndex:
             return offsetOfChosenElement
-        } else if index < slotIndex {
-            return offsetOfPreviousElements
-        } else {
+        case 0..<slotIndex:
+                return offsetOfPreviousElements
+        default:
             return CGSize(width: 0, height: 0)
         }
     }
